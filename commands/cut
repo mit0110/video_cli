@@ -26,9 +26,9 @@ default_output () {
     extension="${filename##*.}"
     basename="${filename%.*}"
     if [ ! -n "$extension" ]; then
-        output_file=${basename}_cut.${extension}
-    else
         output_file=${basename}_cut
+    else
+        output_file=${basename}_cut.${extension}
     fi
 }
 
@@ -58,6 +58,6 @@ cli_log "Cut BEGIN with parameters
     output_file=$output_file
     extra_params=$extra_params"
 
-ffmpeg -i $input_file -vcodec copy -acodec copy ${extra_params} output_file
+ffmpeg -i $input_file -vcodec copy -acodec copy ${extra_params} $output_file
 
 cli_log "Cut END"

@@ -15,7 +15,7 @@ Video edit CLI - Wrapper for ffmpeg
 Version: $(cat $VIDEOCLI_WORKDIR/VERSION)
 Usage: $cli_name [command]
 Commands:
-  cut <input_file> [--o <output_file>] [--p <extra_params>]       cut video input
+  cut       Cut video input using same audio and video codecs.
   *         Help
 "
   exit 1
