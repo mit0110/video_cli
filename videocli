@@ -7,7 +7,7 @@ export VIDEOCLI_LOGDIR=${VIDEOCLI_WORKDIR}/.logs
 
 mkdir ${VIDEOCLI_LOGDIR} 2> /dev/null || true
 
-cli_help() {
+cli_help () {
   cli_name=${0##*/}
   echo "
 $cli_name
@@ -25,6 +25,10 @@ case "$1" in
   cut|c)
     shift
     "$VIDEOCLI_WORKDIR/commands/cut" "$@" | tee -ia "$VIDEOCLI_LOGDIR/cut_last.log"
+    ;;
+  compress)
+    shift
+    "$VIDEOCLI_WORKDIR/commands/compress" "$@" | tee -ia "$VIDEOCLI_LOGDIR/compress_last.log"
     ;;
   *)
     cli_help

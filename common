@@ -4,3 +4,24 @@ cli_log() {
   timestamp=$(date -u +"%Y-%m-%d %H:%M")
   echo "==== $script_name $timestamp $1"
 }
+
+# Assigns to $output_file the value of the first parameter
+# filename with a suffix given by the second parameter.
+# It preserves the extension of the original filename.
+# Example:
+#    default_output "../input_filename.mp4" "cut"
+# sets output_file to
+#    "../input_filename_cut.mp4"
+default_output () {
+    filename=$1
+    basename="${filename%.*}"
+    case $filename in
+    *.* )
+        extension="${filename##*.}"
+        output_file=${basename}_$2.${extension}
+        ;;
+    * )
+        output_file=${basename}_$2
+        ;;
+    esac
+}

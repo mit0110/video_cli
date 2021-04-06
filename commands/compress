@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+set -e
+. "$VIDEOCLI_WORKDIR/common"
+
+cli_help_deploy () {
+  echo "
+Command: compress
+Usage:
+  compress <input_file> [--o <output_file>] [--d]
+
+Description:
+  Compress a video file <input_file> for web usage.
+
+Options:
+  --o <output_file>
+        If not present, the output is saved with the same
+        name and extension as <input_file>, followed by _compress.
+        Example:
+            the output of compress ../input.mp4 will be saved as ../input_cut.mp4
+
+    --d
+        Only prints ffmpeg command. For debug purposes.
+
+"
+
+  exit 1
+}
+
+
+[ ! -n "$1" ] && cli_help_deploy
+input_file=$1
+output_file=""
+debug=false
+
+# Read parameters
+while [ $# -gt 0 ]; do
+    if [[ $1 == *"--o" ]]; then
+        output_file="$2"
+    elif [[ $1 == *"--d" ]]; then
+        debug=true
+    fi
+  shift
+done
+
+if [ ! -n "$output_file" ]; then
+    default_output $input_file "compress"
+fi
+
+cli_log "Compress BEGIN with parameters
+    input_file=$input_file
+    output_file=$output_file"
+
+command="ffmpeg -i $input_file -c:v libx264 -b:v 1.5M -c:a aac -b:a 128k $output_file"
+if [[ "$debug" = true ]]; then
+    echo $command
+else
+    eval $command
+fi
+
+cli_log "Compress END"
