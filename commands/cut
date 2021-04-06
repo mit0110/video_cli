@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+. "$VIDEOCLI_WORKDIR/common"
+
+cli_help_deploy() {
+  echo "
+Command: cut
+Usage:
+  cut <from 00:00:00> <to 00:00:00> <input file> [output file]"
+
+  exit 1
+}
+
+[ ! -n "$1" ] && cli_help_deploy
+[ ! -n "$2" ] && cli_help_deploy
+[ ! -n "$3" ] && cli_help_deploy
+
+cli_log "Cut BEGIN with parameters $1 $2 $3"
+
+
+cli_log "Cut END"

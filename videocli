@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+export VIDEOCLI_WORKDIR=$(cd $(dirname $0) && pwd)
+. "$VIDEOCLI_WORKDIR/common"
+
+cli_help() {
+  cli_name=${0##*/}
+  echo "
+$cli_name
+Video edit CLI - Wrapper for ffmpeg
+Version: $(cat $VIDEOCLI_WORKDIR/VERSION)
+Usage: $cli_name [command]
+Commands:
+  cut <from 00:00:00> <to 00:00:00> <input file>       cut video
+  *         Help
+"
+  exit 1
+}
+
+case "$1" in
+  cut|c)
+    "$VIDEOCLI_WORKDIR/commands/cut" "$2" "$3" "$4" | tee -ia "$VIDEOCLI_WORKDIR/cut_last.log"
+    ;;
+  *)
+    cli_help
+    ;;
+esac
