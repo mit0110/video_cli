@@ -75,3 +75,32 @@ Options:
     --d
         Only print ffmpeg command. For debug purposes.
 ```
+
+#### Noise reduction
+
+Removes background noise in a video file `<input_file>`.
+
+Usage:
+```
+    noise_reduction <input_file> [--o <output_file>]
+                  [--sample-from <sample_from>]
+                  [--sample-to <sample_to>] [--sensitivity <sensitivity>]
+                  [--d]
+```
+
+Options:
+```
+    --o <output_file>
+        If not present, the output is saved with the same
+        name and extension as <input_file>, followed by _noise_reduction.
+        Example:
+            the output of noise_reduction ../input.mp4 will be saved as ../input_cut.mp4
+
+    --sample_from --sf <sample_from>     (default 00:00:00)
+    --sample_to --st <sample_to>         (default 00:00:00.500)
+        Start and end of noise sample to cancel.
+    --sensitivity -sen                   (default 0.21)
+        Magnitude of noise reduction.
+    --d
+        Only prints logs, does not execute command. For debug purposes.
+```

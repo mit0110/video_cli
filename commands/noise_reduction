@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# Based in
+# https://github.com/yonilevy/noiseclean
+
+sox --version >/dev/null || { echo >&2 "We require 'sox' but it's not installed. Install it by 'sudo apt-get install sox' Aborting."; exit 1; }
+
+set -e
+. "$VIDEOCLI_WORKDIR/common"
+
+cli_help_deploy () {
+  echo "
+Command: noise_reduction
+Usage:
+  noise_reduction <input_file> [--o <output_file>]
+                  [--sample-from <sample_from>]
+                  [--sample-to <sample_to>] [--sensitivity <sensitivity>]
+                  [--d]
+
+Description:
+  Removes background noise in a video file <input_file>.
+
+Options:
+    --o <output_file>
+        If not present, the output is saved with the same
+        name and extension as <input_file>, followed by _noise_reduction.
+        Example:
+            the output of noise_reduction ../input.mp4 will be saved as ../input_cut.mp4
+
+    --sample_from --sf <sample_from>     (default 00:00:00)
+    --sample_to --st <sample_to>         (default 00:00:00.500)
+        Start and end of noise sample to cancel.
+    --sensitivity -sen                   (default 0.21)
+        Magnitude of noise reduction.
+    --d
+        Only prints logs, does not execute command. For debug purposes.
+"
+
+  exit 1
+}
+
+
+[ ! -n "$1" ] && cli_help_deploy
+input_file=$1
+extra_params=""
+output_file=""
+sample_from="00:00:00"
+sample_to="00:00:00.500"
+sensitivity="0.21"
+debug=false
+
+# Read parameters
+while [ $# -gt 0 ]; do
+    if [[ $1 == *"--sample-from" ]] || [[ $1 == *"--sf" ]]; then
+        sample_from="$2"
+    elif [[ $1 == *"--sample-to" ]] || [[ $1 == *"--st" ]]; then
+        sample_to="$2"
+    elif [[ $1 == *"--sensitivity" ]] || [[ $1 == *"--sen" ]]; then
+        sensitivity="$2"
+    elif [[ $1 == *"--o" ]]; then
+        output_file="$2"
+    elif [[ $1 == *"--d" ]]; then
+        debug=true
+    fi
+
+  shift
+done
+
+if [ ! -n "$output_file" ]; then
+    default_output $input_file "noise_reduction"
+fi
+
+cli_log "Noise reduction BEGIN with parameters
+    input_file=$input_file
+    output_file=$output_file
+    sample_from=$sample_from
+    sample_to=$sample_to
+    sensitivity=$sensitivity"
+
+if [[ "$debug" = true ]]; then
+    cli_log "Debug mode, no action taken."
+    cli_log "Noise reduction END"
+    exit 0
+fi
+
+input_basename=$(basename "$input_file")
+input_extention="${input_basename##*.}"
+
+
+tmpVidFile="/tmp/noiseclean_tmpvid.$input_extention"
+tmpAudFile="/tmp/noiseclean_tmpaud.wav"
+noiseAudFile="/tmp/noiseclean_noiseaud.wav"
+noiseProfFile="/tmp/noiseclean_noise.prof"
+tmpAudCleanFile="/tmp/noiseclean_tmpaud-clean.wav"
+
+echo "Cleaning noise on '$input_file'..."
+
+
+ffmpeg -v warning -y -i "$input_file" -qscale:v 0 -vcodec copy -an "$tmpVidFile"
+ffmpeg -v warning -y -i "$input_file" -qscale:a 0 "$tmpAudFile"
+
+ffmpeg -v warning -y -i "$input_file" -vn -ss "$sample_from" -t "$sample_to" "$noiseAudFile"
+sox "$noiseAudFile" -n noiseprof "$noiseProfFile"
+sox "$tmpAudFile" "$tmpAudCleanFile" noisered "$noiseProfFile" "$sensitivity"
+
+ffmpeg -v warning -y -i "$tmpAudCleanFile" -i "$tmpVidFile" -vcodec copy -qscale:v 0 -qscale:a 0 "$output_file"
+
+cli_log "Noise reduction END"

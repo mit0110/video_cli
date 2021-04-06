@@ -24,7 +24,7 @@ Options:
 
 
 [ ! -n "$2" ] && cli_help_deploy
-aux_file="concat.aux"
+aux_file="/tmp/concat.aux"
 rm $aux_file 2> /dev/null || true
 touch $aux_file 2> /dev/null || true
 
