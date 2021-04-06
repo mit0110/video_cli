@@ -2,7 +2,10 @@
 
 set -e
 export VIDEOCLI_WORKDIR=$(cd $(dirname $0) && pwd)
+export VIDEOCLI_LOGDIR=${VIDEOCLI_WORKDIR}/.logs
 . "$VIDEOCLI_WORKDIR/common"
+
+mkdir ${VIDEOCLI_LOGDIR} || true
 
 cli_help() {
   cli_name=${0##*/}
@@ -20,7 +23,7 @@ Commands:
 
 case "$1" in
   cut|c)
-    "$VIDEOCLI_WORKDIR/commands/cut" "$2" "$3" "$4" | tee -ia "$VIDEOCLI_WORKDIR/cut_last.log"
+    "$VIDEOCLI_WORKDIR/commands/cut" "$2" "$3" "$4" | tee -ia "$VIDEOCLI_LOGDIR/cut_last.log"
     ;;
   *)
     cli_help
