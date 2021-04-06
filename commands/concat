@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -e
+. "$VIDEOCLI_WORKDIR/common"
+
+cli_help_deploy () {
+  echo "
+Command: concat
+Usage:
+  concat <input_files>... --o <output_file> [--d]
+
+Description:
+  Concatenates a list of at least 2 video files <input_files>.
+
+Options:
+    --o <output_file>
+        Filename to store the result.
+    --d
+        Only print ffmpeg command. For debug purposes.
+"
+
+  exit 1
+}
+
+
+[ ! -n "$2" ] && cli_help_deploy
+aux_file="concat.aux"
+rm $aux_file 2> /dev/null || true
+touch $aux_file 2> /dev/null || true
+
+# Read file list
+while [ $# -gt 0 ]; do
+    if [[ $1 == *"--d" ]] || [[ $1 == *"--o" ]]; then
+        break
+    fi
+    printf "file '${1}'\n" >> $aux_file
+    shift
+done
+
+output_file=""
+debug=false
+
+# Read named parameters
+while [ $# -gt 0 ]; do
+    if [[ $1 == *"--o" ]]; then
+        output_file="$2"
+    elif [[ $1 == *"--d" ]]; then
+        debug=true
+    fi
+
+    shift
+done
+
+[ ! -n "$output_file" ] && cli_help_deploy
+
+input_files=$(cat $aux_file)
+
+cli_log "Concat BEGIN with parameters
+    input_files=
+        $input_files
+    output_file=$output_file"
+
+command="ffmpeg -f concat -safe 0 -i ${aux_file} -c copy $output_file"
+if [[ "$debug" = true ]]; then
+    echo $command
+else
+    eval $command
+fi
+
+rm $aux_file
+
+cli_log "Concat END"

@@ -30,6 +30,10 @@ case "$1" in
     shift
     "$VIDEOCLI_WORKDIR/commands/compress" "$@" | tee -ia "$VIDEOCLI_LOGDIR/compress_last.log"
     ;;
+  concat)
+    shift
+    "$VIDEOCLI_WORKDIR/commands/concat" "$@" | tee -ia "$VIDEOCLI_LOGDIR/concat_last.log"
+    ;;
   *)
     cli_help
     ;;

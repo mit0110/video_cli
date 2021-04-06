@@ -9,8 +9,9 @@ CLI for common ffmpeg commands that I use all the time. Not intended for other p
 videocli command
 
 Commands:
-  cut  <input file>       cut video
-  *         Help
+  cut           Cut video
+  compress      Compress video for web
+  *             Help
 ```
 
 #### Cut
@@ -56,4 +57,21 @@ Options:
 
     --d
         Only prints ffmpeg command. For debug purposes.
+```
+
+#### Concat
+
+Concatenates a list of at least 2 video files `<input_files>`.
+
+Usage:
+```
+  concat <input_files>... --o <output_file> [--d]
+```
+
+Options:
+```
+    --o <output_file>
+        Filename to store the result.
+    --d
+        Only print ffmpeg command. For debug purposes.
 ```
