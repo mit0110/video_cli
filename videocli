@@ -5,7 +5,7 @@ export VIDEOCLI_WORKDIR=$(cd $(dirname $0) && pwd)
 export VIDEOCLI_LOGDIR=${VIDEOCLI_WORKDIR}/.logs
 . "$VIDEOCLI_WORKDIR/common"
 
-mkdir ${VIDEOCLI_LOGDIR} || true
+mkdir ${VIDEOCLI_LOGDIR} 2> /dev/null || true
 
 cli_help() {
   cli_name=${0##*/}
@@ -15,7 +15,7 @@ Video edit CLI - Wrapper for ffmpeg
 Version: $(cat $VIDEOCLI_WORKDIR/VERSION)
 Usage: $cli_name [command]
 Commands:
-  cut <from 00:00:00> <to 00:00:00> <input file>       cut video
+  cut <input_file> [--o <output_file>] [--p <extra_params>]       cut video input
   *         Help
 "
   exit 1
@@ -23,7 +23,8 @@ Commands:
 
 case "$1" in
   cut|c)
-    "$VIDEOCLI_WORKDIR/commands/cut" "$2" "$3" "$4" | tee -ia "$VIDEOCLI_LOGDIR/cut_last.log"
+    shift
+    "$VIDEOCLI_WORKDIR/commands/cut" "$@" | tee -ia "$VIDEOCLI_LOGDIR/cut_last.log"
     ;;
   *)
     cli_help

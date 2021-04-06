@@ -3,20 +3,61 @@
 set -e
 . "$VIDEOCLI_WORKDIR/common"
 
-cli_help_deploy() {
+cli_help_deploy () {
   echo "
 Command: cut
 Usage:
-  cut <from 00:00:00> <to 00:00:00> <input file> [output file]"
+  cut <input_file> [--o <output_file>] [--p <extra_params>]
+
+Cuts a video file <input_file> using the same audio and video codec.
+If <output_file> is not present, the output is saved
+with the same name and extension as <input_file>, followed by _cut.
+Example:
+  the output of cut ../input.mp4 will be saved as ../input_cut.mp4
+
+<extra_params> are directly passed to ffmpeg command.
+"
 
   exit 1
 }
 
+default_output () {
+    filename=$1
+    extension="${filename##*.}"
+    basename="${filename%.*}"
+    if [ ! -n "$extension" ]; then
+        output_file=${basename}_cut.${extension}
+    else
+        output_file=${basename}_cut
+    fi
+}
+
+
 [ ! -n "$1" ] && cli_help_deploy
-[ ! -n "$2" ] && cli_help_deploy
-[ ! -n "$3" ] && cli_help_deploy
+input_file=$1
+extra_params=""
+output_file=""
 
-cli_log "Cut BEGIN with parameters $1 $2 $3"
+# Read parameters
+while [ $# -gt 0 ]; do
+    if [[ $1 == *"--p" ]]; then
+        extra_params="$2"
+    elif [[ $1 == *"--o" ]]; then
+        output_file="$2"
+    fi
 
+  shift
+done
+
+if [ ! -n "$output_file" ]; then
+    default_output $input_file
+fi
+
+cli_log "Cut BEGIN with parameters
+    input_file=$input_file
+    output_file=$output_file
+    extra_params=$extra_params"
+
+ffmpeg -i $input_file -vcodec copy -acodec copy ${extra_params} output_file
 
 cli_log "Cut END"
